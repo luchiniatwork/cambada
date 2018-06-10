@@ -61,9 +61,11 @@
   (try
     (let [deps-map (deps.reader/slurp-deps (io/file deps))
           opts (cond-> options
-                 ;; if main is not nil, it needs to be added to aot unless user chose all for aot
+                 ;; if main is not nil, it needs to be added to aot unless user chose all or
+                 ;; main has been added manually to aot
                  (and (not (nil? main))
-                      (not= (first aot) 'all))
+                      (and (not= (first aot) 'all)
+                           (not= (some #(= main %) aot))))
                  (assoc :aot (conj (or aot []) (symbol main))))]
       (-> {:parser {:summary summary
                     :errors errors}}
