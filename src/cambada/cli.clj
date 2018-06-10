@@ -32,10 +32,11 @@
 (defn abort
   "Print msg to standard err and exit with a value of 1."
   [& msg]
-  (binding [*out* *err*]
-    (when (seq msg)
-      (apply println msg))
-    (System/exit 1)))
+  (let [msg-out (concat ["ERROR!"] msg)]
+    (binding [*out* *err*]
+      (when (seq msg-out)
+        (apply println msg-out))
+      (System/exit 1))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helpers for cli use
