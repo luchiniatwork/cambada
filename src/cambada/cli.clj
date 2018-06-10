@@ -97,4 +97,5 @@
   (if help?
     (usage entrypoint-main entrypoint-description task)
     (do (apply-fn task)
-        (info "Done!"))))
+        (info "Done!")
+        (System/exit 0))))
