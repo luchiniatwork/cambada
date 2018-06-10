@@ -105,3 +105,7 @@
   (if (.isDirectory file)
     (str path "/")
     path))
+
+(defn compiled-classes-path
+  [out-path]
+  (str out-path "/classes"))

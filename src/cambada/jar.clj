@@ -142,7 +142,7 @@
 
 (defn- filespecs [{{:keys [paths extra-paths]} :deps-map
                    :keys [out copy-source] :as task}]
-  (concat [{:type :path :path (str out "/classes")}
+  (concat [{:type :path :path (utils/compiled-classes-path out)}
            {:type :paths :paths extra-paths}]
           (if copy-source
             [{:type :paths
@@ -173,7 +173,7 @@
                       "been AOT-compiled."))))
       jar-paths)))
 
-(defn apply! [{:keys [deps-map out] :as task}]
+(defn apply! [{:keys [deps-map] :as task}]
   (compile/apply! task)
   (let [jar-file (jar-utils/get-jar-filename task)]
     (cli/info "Creating" jar-file)

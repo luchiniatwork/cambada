@@ -27,7 +27,7 @@
 
 (defn apply! [{:keys [deps-map out aot] :as task}]
   (clean/apply! task)
-  (let [target (str out "/classes")
+  (let [target (utils/compiled-classes-path out)
         aot-ns (aot-namespaces task)]
     (utils/mkdirs target)
     (cli/info "Creating" target)
