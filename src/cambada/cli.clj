@@ -55,11 +55,27 @@
   [args cli-options]
   (cli/parse-opts args cli-options))
 
+(defn ^:private conj-default-paths [{:keys [paths] :as m}]
+  (assoc m :paths
+         (-> paths
+             set
+             (conj "src")
+             vec)))
+
+(defn ^:private assoc-default-deps [{:keys [deps] :or {deps {}} :as m}]
+  (cond-> m
+    (nil? (get deps 'org.clojure/clojure))
+    (assoc :deps (assoc deps 'org.clojure/clojure {:mvn/version "1.9.0"}))))
+
 (defn ^:private parsed-opts->task
   [{{:keys [deps main aot] :as options} :options
     :keys [summary errors]}]
   (try
-    (let [deps-map (deps.reader/slurp-deps (io/file deps))
+    (let [deps-map (-> deps
+                       io/file
+                       deps.reader/slurp-deps
+                       conj-default-paths
+                       assoc-default-deps)
           opts (cond-> options
                  ;; if main is not nil, it needs to be added to aot
                  ;; unless user chose all or main has been added
