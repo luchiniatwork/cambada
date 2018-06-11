@@ -10,21 +10,21 @@ for your Clojure project.
 ## Motivation
 
 Leiningen has laid the foundations of what many of us have come to accept as the
-standards for Clojure projects. Clojure's `tools.deps` potentially brings new
-ideas to the Clojure workflow. Cambada brings at least a few of the great
-features of Leiningen to the `tools.deps` workflow.
+standard for Clojure projects. Clojure's `tools.deps` potentially brings new
+ideas to the Clojure workflow. Cambada brings some of the great features of
+Leiningen to the `tools.deps` workflow.
 
 Cambada's sole focus is packaging. It doesn't have plugins, templates or Clojars
-integration. It packages your `deps.edn` progject as a:
+integration. It packages your `deps.edn` progject as one - or all - of:
 
-1. jar,
-2. uberjar or
+1. jar
+2. uberjar
 3. GraalVM native image
 
-On top of Phil Hagelberg's (and so many others) great Leiningen, many thanks to
-Dominic Monroe and his great `pack` as well as Taylor Wood and his
+On top of Phil Hagelberg's (and so many others') great Leiningen, many thanks to
+Dominic Monroe and his work on `pack` as well as Taylor Wood and his
 `clj.native-image`. These projects offered a lot of inspiration (and, in some
-places, donor code too).
+cases, donor code too).
 
 ## Table of Contents
 
@@ -91,12 +91,13 @@ interested or refer to the sections below.
 
 ## Easy Aliases
 
-One of the simple powers of tools.deps is the ability to define aliases on
-`deps.edn`. When we used the alias `cambada` above, we simply specified it as an
-extra dependency to be resolved (therefore the `-R` when calling `clj`).
+One of the powers-in-simplicity of `tools.deps` is the ability to define aliases
+on `deps.edn`. When we used the alias `cambada` on the section above, we simply
+specified it as an dependency to be resolved (therefore the `-R` when calling
+`clj`).
 
-You can also be a lot more perscritive in your aliases making them do more work
-for you. For instance, the alias below will create a versioned uberjar:
+You can also be a lot more prescriptive in your aliases by making them do more
+work for you. For instance, the alias below will create a versioned uberjar:
 
 ``` clojure
 {:aliases {:uberjar
@@ -106,8 +107,9 @@ for you. For instance, the alias below will create a versioned uberjar:
                         "--app-version" "0.5.3"]}}}
 ```
 
-By having an alias like this in your `deps.edn` you can simply run it by using
-`clj -A:uberjar` making it familiar to those used with `lein uberjar`:
+By having an alias like this `uberjar` one in your `deps.edn` you can simply run
+it by using `$ clj -A:uberjar` making it very familiar to those used with `$
+lein uberjar`:
 
 ``` shell
 $ clj -A:uberjar
@@ -122,19 +124,62 @@ Done!
 
 ## Packaging as a Jar
 
-The entry point `cambada.jar` is your starting place for creating a simple jar:
+Let's start with an empty project folder:
 
 ``` shell
-$ clj -R:cambada -m cambada.jar
+$ mkdir -p myproj/src/myproj/
+$ cd myproj
+```
+
+Create a `deps.edn` at the root of your project with `cambada.jar` as an alias:
+
+``` clojure
+{:aliases {:jar
+           {:extra-deps
+            {cambada {:local/root "../cambada"}}
+            :main-opts ["-m" "cambada.jar"
+                        "-m" "myproj.core"]}}}
+```
+
+Create a simple hello world on a `-main` function at `src/myproj/core.clj`:
+
+``` clojure
+(ns myproj.core
+  (:gen-class))
+
+(defn -main [& args]
+  (println "Hello World!"))
+```
+
+Of course, just for safe measure, let's run this hello world via `clj`:
+
+``` shell
+$ clj -m myproj.core
+Hello World!
+```
+
+Then just call the alias from the project's root:
+
+``` shell
+$ clj -A:jar
 Cleaning target
 Creating target/classes
-  Compiling ...
-Creating target/project-name-1.0.0-SNAPSHOT.jar
+  Compiling myproj.core
+Creating target/myproj-1.0.0-SNAPSHOT.jar
 Done!
 ```
 
-You can specify the following options for `cambada.jar`:
+Once Cambada is done, you'll have a jar package at `target/`. In order to run
+it, you'll need to add Clojure and spec to your class path. The paths will vary
+on your system:
 
+``` shell
+$ java -cp target/myproj-1.0.0-SNAPSHOT.jar:/Users/<your_user>/.m2/repository/org/clojure/clojure/1.9.0/clojure-1.9.0.jar:/Users/<your_user>/.m2/repository/org/clojure/spec.alpha/0.1.143/spec.alpha-0.1.143.jar myproj.core
+Hello World!
+```
+For a standalone jar file see the uberjar option on the next section.
+
+You can specify the following options for `cambada.jar`:
 
 ``` text
   -m, --main NS_NAME                            The namespace with the -main function
@@ -159,18 +204,63 @@ you must specify these expressively as options.
 
 ## Packaging as an Uberjar
 
-The entry point `cambada.uberjar` is your starting place for creating
-a standalone jar (one with all of your porject's dependencies in it).
+Let's start with an empty project folder:
 
 ``` shell
-$ clj -R:cambada -m cambada.uberjar
+$ mkdir -p myproj/src/myproj/
+$ cd myproj
+```
+
+Create a `deps.edn` at the root of your project with `cambada.jar` as an alias:
+
+``` clojure
+{:aliases {:uberjar
+           {:extra-deps
+            {cambada {:local/root "../cambada"}}
+            :main-opts ["-m" "cambada.uberjar"
+                        "-m" "myproj.core"]}}}
+```
+
+Create a simple hello world on a `-main` function at `src/myproj/core.clj`:
+
+``` clojure
+(ns myproj.core
+  (:gen-class))
+
+(defn -main [& args]
+  (println "Hello World!"))
+```
+
+Of course, just for safe measure, let's run this hello world via `clj`:
+
+``` shell
+$ clj -m myproj.core
+Hello World!
+```
+
+Then just call the alias from the project's root:
+
+``` shell
+$ clj -A:uberjar
 Cleaning target
 Creating target/classes
-  Compiling ...
-Creating target/project-name-1.0.0-SNAPSHOT.jar
-Creating target/project-name-1.0.0-SNAPSHOT-standalone.jar
-  Including ...
+  Compiling myproj.core
+Creating target/myproj-1.0.0-SNAPSHOT.jar
+Creating target/myproj-1.0.0-SNAPSHOT-standalone.jar
+  Including myproj-1.0.0-SNAPSHOT.jar
+  Including clojure-1.9.0.jar
+  Including spec.alpha-0.1.143.jar
+  Including core.specs.alpha-0.1.24.jar
 Done!
+```
+
+Once Cambada is done, you'll have two jar packages at `target/`. One for a basic
+jar and one standalone with all dependencies in it. In order to run it, simply
+call it:
+
+``` shell
+$ java -jar target/myproj-1.0.0-SNAPSHOT-standalone.jar
+Hello World!
 ```
 
 `cambada.uberjar` has exactly the same options and defaults as
@@ -190,8 +280,26 @@ to where GraalVM is installed. Alternatevely you can call
 
 The entry point for native image packaging is
 `cambada.native-image`. Let's assume your `GRAALVM_HOME` variable is
-set and you have a simple `-main` function in your
-`src/myproj/core.clj`:
+set (if you don't, use `--graalvm-home`).
+
+Let's start with an empty project folder:
+
+``` shell
+$ mkdir -p myproj/src/myproj/
+$ cd myproj
+```
+
+Create a `deps.edn` at the root of your project with `cambada.jar` as an alias:
+
+``` clojure
+{:aliases {:native-image
+           {:extra-deps
+            {cambada {:local/root "../cambada"}}
+            :main-opts ["-m" "cambada.native-image"
+                        "-m" "myproj.core"]}}}
+```
+
+Create a simple hello world on a `-main` function at `src/myproj/core.clj`:
 
 ``` clojure
 (ns myproj.core
@@ -201,15 +309,37 @@ set and you have a simple `-main` function in your
   (println "Hello World!"))
 ```
 
-Let's tell Cambada that your main function is at `myproj.core`:
+Of course, just for safe measure, let's run this hello world via `clj`:
 
 ``` shell
-$ clj -R:cambada -m cambada.native-image -m myproj.core
+$ clj -m myproj.native-image
+Hello World!
+```
+
+Then just call the alias from the project's root:
+
+``` shell
+$ clj -A:native-image
 Cleaning target
 Creating target/classes
-  Compiling ...
+  Compiling myproj.core
 Creating target/myproj
-  ...
+   classlist:   2,810.07 ms
+       (cap):   1,469.31 ms
+       setup:   2,561.28 ms
+  (typeflow):   5,802.45 ms
+   (objects):   2,644.17 ms
+  (features):      40.54 ms
+    analysis:   8,609.18 ms
+    universe:     314.28 ms
+     (parse):   1,834.84 ms
+    (inline):   2,338.45 ms
+   (compile):  16,824.24 ms
+     compile:  21,435.77 ms
+       image:   1,862.44 ms
+       write:   1,276.55 ms
+     [total]:  38,942.48 ms
+
 Done!
 ```
 
@@ -229,6 +359,43 @@ the current status of GraalVM.
 
 Extra options can be sent to GraalVM's packager by using Cambada's
 `--graalvm-opt` option.
+
+## Performance Comparison
+
+A quick comparison of the `myproj` hello world as described previously and ran
+across different packaging options:
+
+Straight with `clj`:
+
+``` shell
+$ time clj -m myproj.core
+Hello World!
+1.160 secs
+```
+
+As a standalone uberjar:
+
+``` shell
+$ time java -jar target/myproj-1.0.0-SNAPSHOT-standalone.jar
+Hello World!
+0.850 secs
+```
+
+As a native image:
+
+``` shell
+$ time ./target/myproj
+Hello World!
+0.054 secs
+```
+
+Comparing with `clj` as a baseline:
+
+| Method         | Speed in secs | Speed relative to `clj` |
+| -------------- | ------------- | ----------------------- |
+| `clj`          | `1.160 secs`  | `1x`                    |
+| `uberjar`      | `0.850 secs`  | `1.36x`                 |
+| `native-image` | `0.054 secs`  | `21.48x`                |
 
 ## Bugs
 
