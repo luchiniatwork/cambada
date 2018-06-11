@@ -6,9 +6,8 @@
             [cambada.utils :as utils]
             [clojure.java.io :as io]
             [clojure.string :as string])
-  (:import (java.io BufferedOutputStream FileOutputStream
-                    ByteArrayInputStream)
-           (java.util.jar Manifest JarEntry JarOutputStream)))
+  (:import [java.io BufferedOutputStream FileOutputStream ByteArrayInputStream]
+           [java.util.jar Manifest JarEntry JarOutputStream]))
 
 (def cli-options
   (concat [["-m" "--main NS_NAME" "The namespace with the -main function"]

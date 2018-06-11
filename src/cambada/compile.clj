@@ -25,7 +25,7 @@
          flatten)
     aot))
 
-(defn apply! [{:keys [deps-map out aot] :as task}]
+(defn apply! [{:keys [deps-map out] :as task}]
   (clean/apply! task)
   (let [target (utils/compiled-classes-path out)
         aot-ns (aot-namespaces task)]

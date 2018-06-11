@@ -61,8 +61,9 @@
   (try
     (let [deps-map (deps.reader/slurp-deps (io/file deps))
           opts (cond-> options
-                 ;; if main is not nil, it needs to be added to aot unless user chose all or
-                 ;; main has been added manually to aot
+                 ;; if main is not nil, it needs to be added to aot
+                 ;; unless user chose all or main has been added
+                 ;; manually to aot
                  (and (not (nil? main))
                       (and (not= (first aot) 'all)
                            (not= (some #(= main %) aot))))
@@ -72,7 +73,10 @@
           (merge opts)
           (assoc :deps-map deps-map)))
     (catch Exception e
-      (abort "Error reading your deps file. Make sure" deps "is existent and correct."))))
+      (abort (->> ["Error reading your deps file. Make sure"
+                   deps
+                   "is existent and correct."]
+                  (string/join " "))))))
 
 (defn args->task
   [args cli-options]
@@ -93,7 +97,8 @@
    info))
 
 (defn runner
-  [{:keys [help? task apply-fn entrypoint-main entrypoint-description]}]
+  [{:keys [help? task apply-fn
+           entrypoint-main entrypoint-description]}]
   (if help?
     (usage entrypoint-main entrypoint-description task)
     (do (apply-fn task)

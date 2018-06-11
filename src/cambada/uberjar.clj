@@ -7,13 +7,12 @@
             [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.tools.deps.alpha :as tools.deps])
-  (:import (java.io BufferedOutputStream FileOutputStream
-                    ByteArrayInputStream)
-           (java.nio.file Files Paths)
-           (java.util.jar Manifest JarEntry JarOutputStream)
-           (java.util.regex Pattern)
-           (java.util.zip ZipFile ZipOutputStream ZipEntry)
-           (org.apache.commons.io.output CloseShieldOutputStream)))
+  (:import [java.io BufferedOutputStream FileOutputStream ByteArrayInputStream]
+           [java.nio.file Files Paths]
+           [java.util.jar Manifest JarEntry JarOutputStream]
+           [java.util.regex Pattern]
+           [java.util.zip ZipFile ZipOutputStream ZipEntry]
+           [org.apache.commons.io.output CloseShieldOutputStream]))
 
 (def cli-options
   jar/cli-options)

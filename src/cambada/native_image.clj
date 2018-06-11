@@ -7,15 +7,14 @@
             [clojure.java.shell :as shell]
             [clojure.tools.deps.alpha :as tools.deps]
             [clojure.string :as string])
-  (:import
-   java.io.File
-   [java.nio.file Files Paths]
-   java.nio.file.attribute.FileAttribute))
+  (:import [java.io File]
+           [java.nio.file Files Paths]
+           [java.nio.file.attribute FileAttribute]))
 
 (def cli-options
   (concat [["-m" "--main NS_NAME" "The namespace with the -main function"]
 
-           [nil "--image-name" "The name of the image to be created"
+           [nil "--image-name NAME" "The name of the image to be created"
             :default (utils/directory-name)]
 
            [nil "--graalvm-home PATH" "Path of the GraalVM home (defaults to GRAALVM_HOME)"
