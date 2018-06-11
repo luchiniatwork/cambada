@@ -33,6 +33,7 @@ cases, donor code too).
 * [Packaging as a Jar](#packaging-as-a-jar)
 * [Packaging as an Uberjar](#packaging-as-an-uberjar)
 * [Packaging as a Native Image](#packaging-as-a-native-image)
+* [Performance Comparison](#performance-comparison)
 * [Bugs](#bugs)
 * [Help!](#help)
 
