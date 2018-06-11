@@ -14,9 +14,7 @@
            [java.util.zip ZipFile ZipOutputStream ZipEntry]
            [org.apache.commons.io.output CloseShieldOutputStream]))
 
-(def cli-options
-  jar/cli-options)
-
+(def cli-options jar/cli-options)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Merger functions

@@ -1,6 +1,6 @@
 # Cambada
 
-[![Clojars Project](https://img.shields.io/clojars/v/cambada.svg)](https://clojars.org/cambada)
+[![Clojars Project](https://img.shields.io/clojars/v/luchiniatwork/cambada.svg)](https://clojars.org/luchiniatwork/cambada)
 
 Cambada is a packager for Clojure based on `deps.edn` (AKA `tools.deps`). It is
 heavily inspired by Leiningen's jar and uberjar tasks and also supports
@@ -47,7 +47,7 @@ with `extra-deps` to your `deps.edn` file:
 {:aliases {:cambada
            {:extra-deps
             {cambada
-             {:mvn/version "0.1.0"}}}}}
+             {:mvn/version "1.0.0"}}}}}
 ```
 
 Cambada has three main entry points, `cambada.jar`, `cambada.uberjar` and
@@ -59,6 +59,7 @@ Cleaning target
 Creating target/classes
   Compiling ...
 Creating target/project-name-1.0.0-SNAPSHOT.jar
+Updating pom.xml
 Creating target/project-name-1.0.0-SNAPSHOT-standalone.jar
   Including ...
 Done!
@@ -103,7 +104,7 @@ work for you. For instance, the alias below will create a versioned uberjar:
 ``` clojure
 {:aliases {:uberjar
            {:extra-deps
-            {cambada {:local/root "../cambada"}}
+            {cambada {:mvn/version "1.0.0"}}
             :main-opts ["-m" "cambada.uberjar"
                         "--app-version" "0.5.3"]}}}
 ```
@@ -118,6 +119,7 @@ Cleaning target
 Creating target/classes
   Compiling ...
 Creating target/project-name-0.5.3.jar
+Updating pom.xml
 Creating target/project-name-0.5.3-standalone.jar
   Including ...
 Done!
@@ -137,7 +139,7 @@ Create a `deps.edn` at the root of your project with `cambada.jar` as an alias:
 ``` clojure
 {:aliases {:jar
            {:extra-deps
-            {cambada {:local/root "../cambada"}}
+            {cambada {:mvn/version "1.0.0"}}
             :main-opts ["-m" "cambada.jar"
                         "-m" "myproj.core"]}}}
 ```
@@ -167,6 +169,7 @@ Cleaning target
 Creating target/classes
   Compiling myproj.core
 Creating target/myproj-1.0.0-SNAPSHOT.jar
+Updating pom.xml
 Done!
 ```
 
@@ -217,7 +220,7 @@ Create a `deps.edn` at the root of your project with `cambada.jar` as an alias:
 ``` clojure
 {:aliases {:uberjar
            {:extra-deps
-            {cambada {:local/root "../cambada"}}
+            {cambada {:mvn/version "1.0.0"}}
             :main-opts ["-m" "cambada.uberjar"
                         "-m" "myproj.core"]}}}
 ```
@@ -247,6 +250,7 @@ Cleaning target
 Creating target/classes
   Compiling myproj.core
 Creating target/myproj-1.0.0-SNAPSHOT.jar
+Updating pom.xml
 Creating target/myproj-1.0.0-SNAPSHOT-standalone.jar
   Including myproj-1.0.0-SNAPSHOT.jar
   Including clojure-1.9.0.jar
@@ -295,7 +299,7 @@ Create a `deps.edn` at the root of your project with `cambada.jar` as an alias:
 ``` clojure
 {:aliases {:native-image
            {:extra-deps
-            {cambada {:local/root "../cambada"}}
+            {cambada {:mvn/version "1.0.0"}}
             :main-opts ["-m" "cambada.native-image"
                         "-m" "myproj.core"]}}}
 ```

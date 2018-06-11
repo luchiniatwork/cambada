@@ -4,10 +4,18 @@
             [cambada.compile :as compile]
             [cambada.jar-utils :as jar-utils]
             [cambada.utils :as utils]
+            [clojure.data.xml :as xml]
+            [clojure.data.xml.event :as event]
+            [clojure.data.xml.tree :as tree]
             [clojure.java.io :as io]
-            [clojure.string :as string])
-  (:import [java.io BufferedOutputStream FileOutputStream ByteArrayInputStream]
+            [clojure.string :as string]
+            [clojure.tools.deps.alpha.gen.pom :as gen.pom]
+            [clojure.zip :as zip])
+  (:import [clojure.data.xml.node Element]
+           [java.io Reader BufferedOutputStream FileOutputStream ByteArrayInputStream]
            [java.util.jar Manifest JarEntry JarOutputStream]))
+
+(xml/alias-uri 'pom "http://maven.apache.org/POM/4.0.0")
 
 (def cli-options
   (concat [["-m" "--main NS_NAME" "The namespace with the -main function"]
@@ -120,7 +128,6 @@
 
 (defmethod copy-to-jar :bytes [project jar-os acc spec]
   (let [path (utils/unix-path (:path spec))]
-    (println "aqui" path)
     (when-not (some #(re-find % path) (:jar-exclusions project))
       (.putNextEntry jar-os (JarEntry. path))
       (let [bytes (if (string? (:bytes spec))
@@ -148,6 +155,46 @@
               :paths paths}])))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; POM update functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn ^:private make-xml-element
+  [{:keys [tag attrs] :as node} children]
+  (with-meta
+    (apply xml/element tag attrs children)
+    (meta node)))
+
+(defn- xml-update
+  [root tag-path replace-node]
+  (let [z (zip/zipper xml/element? :content make-xml-element root)]
+    (zip/root
+     (loop [[tag & more-tags :as tags] tag-path, parent z, child (zip/down z)]
+       (if child
+         (if (= tag (:tag (zip/node child)))
+           (if (seq more-tags)
+             (recur more-tags child (zip/down child))
+             (zip/edit child (constantly replace-node)))
+           (recur tags parent (zip/right child)))
+         (zip/append-child parent replace-node))))))
+
+(defn- replace-header
+  [pom {:keys [app-group-id app-artifact-id app-version] :as task}]
+  (cond-> pom
+    app-group-id    (xml-update [::pom/groupId]
+                                (xml/sexp-as-element [::pom/groupId app-group-id]))
+    app-artifact-id (xml-update [::pom/artifactId]
+                                (xml/sexp-as-element [::pom/artifactId app-artifact-id]))
+    app-version     (xml-update [::pom/version]
+                                (xml/sexp-as-element [::pom/version app-version]))))
+
+(defn- parse-xml
+  [^Reader rdr]
+  (let [roots (tree/seq-tree event/event-element event/event-exit? event/event-node
+                             (xml/event-seq rdr {:include-node? #{:element :characters :comment}}))]
+    (first (filter #(instance? Element %) (first roots)))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Main functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -172,10 +219,22 @@
                       "been AOT-compiled."))))
       jar-paths)))
 
+(defn ^:private sync-pom
+  [{:keys [deps-map] :as task}]
+  (cli/info "Updating pom.xml") 
+  (gen.pom/sync-pom deps-map (io/file ".")) 
+  (let [pom-file (io/file "." "pom.xml")
+        pom (with-open [rdr (io/reader pom-file)]
+              (-> rdr
+                  parse-xml
+                  (replace-header task)))]
+    (spit pom-file (xml/indent-str pom))))
+
 (defn apply! [{:keys [deps-map] :as task}]
   (compile/apply! task)
   (let [jar-file (jar-utils/get-jar-filename task)]
     (cli/info "Creating" jar-file)
+    (sync-pom task)
     (write-jar task jar-file (filespecs task))))
 
 (defn -main [& args]
