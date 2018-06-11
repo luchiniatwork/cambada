@@ -2,21 +2,24 @@
 
 [![Clojars Project](https://img.shields.io/clojars/v/cambada.svg)](https://clojars.org/cambada)
 
-Cambada is a packager for Clojure based on deps.edn (AKA tools.deps). It is
+Cambada is a packager for Clojure based on `deps.edn` (AKA `tools.deps`). It is
 heavily inspired by Leiningen's jar and uberjar tasks and also supports
 GraalVM's new native-image making it a one-stop shop for any packaging needed
 for your Clojure project.
 
 ## Motivation
 
-Leiningen has set the foundations of what many of us have come to accept as the
-foundations for Clojure projects. Clojure's tools.deps potentially brings new
-concepts to the Clojure workflow. Cambada brings at least a few of the great
-features of Leiningen to the tools.deps workflow.
+Leiningen has laid the foundations of what many of us have come to accept as the
+standards for Clojure projects. Clojure's `tools.deps` potentially brings new
+ideas to the Clojure workflow. Cambada brings at least a few of the great
+features of Leiningen to the `tools.deps` workflow.
 
-Cambada's sole focus is just packaging. It doesn't have plugins, templates or
-Clojars integration. It packages your deps.edn progject as a jar, uberjar or
-GraalVM native image.
+Cambada's sole focus is packaging. It doesn't have plugins, templates or Clojars
+integration. It packages your `deps.edn` progject as a:
+
+1. jar,
+2. uberjar or
+3. GraalVM native image
 
 On top of Phil Hagelberg's (and so many others) great Leiningen, many thanks to
 Dominic Monroe and his great `pack` as well as Taylor Wood and his
@@ -35,9 +38,9 @@ places, donor code too).
 
 ## Getting Started
 
-Cambada is a simple set of main functions that can be called from a deps.edn
+Cambada is a simple set of main functions that can be called from a `deps.edn`
 alias. The simplest way to have it available in your project is to add an alias
-with `extra-deps`:
+with `extra-deps` to your `deps.edn` file:
 
 ``` clojure
 {:aliases {:cambada
