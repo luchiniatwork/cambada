@@ -46,7 +46,7 @@ with `extra-deps` to your `deps.edn` file:
 ``` clojure
 {:aliases {:cambada
            {:extra-deps
-            {cambada
+            {luchiniatwork/cambada
              {:mvn/version "1.0.0"}}}}}
 ```
 
@@ -104,7 +104,7 @@ work for you. For instance, the alias below will create a versioned uberjar:
 ``` clojure
 {:aliases {:uberjar
            {:extra-deps
-            {cambada {:mvn/version "1.0.0"}}
+            {luchiniatwork/cambada {:mvn/version "1.0.0"}}
             :main-opts ["-m" "cambada.uberjar"
                         "--app-version" "0.5.3"]}}}
 ```
@@ -139,7 +139,7 @@ Create a `deps.edn` at the root of your project with `cambada.jar` as an alias:
 ``` clojure
 {:aliases {:jar
            {:extra-deps
-            {cambada {:mvn/version "1.0.0"}}
+            {luchiniatwork/cambada {:mvn/version "1.0.0"}}
             :main-opts ["-m" "cambada.jar"
                         "-m" "myproj.core"]}}}
 ```
@@ -220,7 +220,7 @@ Create a `deps.edn` at the root of your project with `cambada.jar` as an alias:
 ``` clojure
 {:aliases {:uberjar
            {:extra-deps
-            {cambada {:mvn/version "1.0.0"}}
+            {luchiniatwork/cambada {:mvn/version "1.0.0"}}
             :main-opts ["-m" "cambada.uberjar"
                         "-m" "myproj.core"]}}}
 ```
@@ -299,7 +299,7 @@ Create a `deps.edn` at the root of your project with `cambada.jar` as an alias:
 ``` clojure
 {:aliases {:native-image
            {:extra-deps
-            {cambada {:mvn/version "1.0.0"}}
+            {luchiniatwork/cambada {:mvn/version "1.0.0"}}
             :main-opts ["-m" "cambada.native-image"
                         "-m" "myproj.core"]}}}
 ```
