@@ -17,6 +17,11 @@
 
 (xml/alias-uri 'pom "http://maven.apache.org/POM/4.0.0")
 
+(defn spy
+  [& args]
+  (apply prn args)
+  (last args))
+
 (def cli-options
   (concat [["-m" "--main NS_NAME" "The namespace with the -main function"]
 
@@ -45,12 +50,12 @@
   [file relative-path root-file exclusion-patterns inclusion-patterns]
   (or (not (.exists file))
       (and
-       (not= file root-file)
-       (not (some #(re-find % relative-path) inclusion-patterns))
-       (or
-        (re-find #"^\.?#" (.getName file))
-        (re-find #"~$" (.getName file))
-        (some #(re-find % relative-path) exclusion-patterns)))))
+        (not= file root-file)
+        (not (some #(re-find % relative-path) inclusion-patterns))
+        (or
+          (re-find #"^\.?#" (.getName file))
+          (re-find #"~$" (.getName file))
+          (some #(re-find % relative-path) exclusion-patterns)))))
 
 (defn- added-file?
   "Returns true if the file is already added to the jar, false otherwise. Prints
@@ -71,20 +76,20 @@
                                  app-artifact-id
                                  app-version
                                  main] :as task}]
-  (cond-> {"Created-By" (str "Cambada version TBD")
-           "Built-By" (System/getProperty "user.name")
-           "Build-Jdk" (System/getProperty "java.version")
+  (cond-> {"Created-By"                 (str "Cambada version TBD")
+           "Built-By"                   (System/getProperty "user.name")
+           "Build-Jdk"                  (System/getProperty "java.version")
            "Cambada-Project-ArtifactId" app-artifact-id
-           "Cambada-Project-GroupId" app-group-id
-           "Cambada-Project-Version" app-version}
-    (not (nil? main)) (assoc "Main-Class" main)))
+           "Cambada-Project-GroupId"    app-group-id
+           "Cambada-Project-Version"    app-version}
+          (not (nil? main)) (assoc "Main-Class" main)))
 
 (defn ^:private make-manifest-bytes [{:keys [main] :as task}]
   (->> (default-manifest task)
-       (cons ["Manifest-Version" "1.0"]) ;; Manifest-Version line must be first
+       (cons ["Manifest-Version" "1.0"])                    ;; Manifest-Version line must be first
        (map (fn [[k v]] (str k ": " v)))
        (string/join "\n")
-       ((fn [x] (str x "\n"))) ;; Must have an extra \n at the end
+       ((fn [x] (str x "\n")))                              ;; Must have an extra \n at the end
        .getBytes))
 
 (defn ^:private make-manifest [{:keys [main] :as task}]
@@ -111,8 +116,8 @@
         root-dir-path (utils/unix-path (utils/dir-string root-file))
         paths (for [child (file-seq root-file)
                     :let [path (utils/relativize-path
-                                (utils/full-path child (utils/unix-path (str child)))
-                                root-dir-path)]]
+                                 (utils/full-path child (utils/unix-path (str child)))
+                                 root-dir-path)]]
                 (when-not (or (skip-file? child path root-file
                                           (:jar-exclusions project)
                                           (:jar-inclusions project))
@@ -147,11 +152,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn- filespecs [{{:keys [paths extra-paths]} :deps-map
-                   :keys [out copy-source] :as task}]
+                   :keys                       [out copy-source] :as task}]
   (concat [{:type :path :path (utils/compiled-classes-path out)}
            {:type :paths :paths extra-paths}]
           (if copy-source
-            [{:type :paths
+            [{:type  :paths
               :paths paths}])))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -168,30 +173,34 @@
   [root tag-path replace-node]
   (let [z (zip/zipper xml/element? :content make-xml-element root)]
     (zip/root
-     (loop [[tag & more-tags :as tags] tag-path, parent z, child (zip/down z)]
-       (if child
-         (if (= tag (:tag (zip/node child)))
-           (if (seq more-tags)
-             (recur more-tags child (zip/down child))
-             (zip/edit child (constantly replace-node)))
-           (recur tags parent (zip/right child)))
-         (zip/append-child parent replace-node))))))
+      (loop [[tag & more-tags :as tags] tag-path, parent z, child (zip/down z)]
+        (if child
+          (if (= tag (:tag (zip/node child)))
+            (if (seq more-tags)
+              (recur more-tags child (zip/down child))
+              (zip/edit child (constantly replace-node)))
+            (recur tags parent (zip/right child)))
+          (zip/append-child parent replace-node))))))
 
 (defn- replace-header
   [pom {:keys [app-group-id app-artifact-id app-version] :as task}]
   (cond-> pom
-    app-group-id    (xml-update [::pom/groupId]
-                                (xml/sexp-as-element [::pom/groupId app-group-id]))
-    app-artifact-id (xml-update [::pom/artifactId]
-                                (xml/sexp-as-element [::pom/artifactId app-artifact-id]))
-    app-version     (xml-update [::pom/version]
-                                (xml/sexp-as-element [::pom/version app-version]))))
+          app-group-id (xml-update [::pom/groupId]
+                                   (xml/sexp-as-element [::pom/groupId app-group-id]))
+          app-artifact-id (xml-update [::pom/artifactId]
+                                      (xml/sexp-as-element [::pom/artifactId app-artifact-id]))
+          app-version (xml-update [::pom/version]
+                                  (xml/sexp-as-element [::pom/version app-version]))))
 
 (defn- parse-xml
   [^Reader rdr]
-  (let [roots (tree/seq-tree event/event-element event/event-exit? event/event-node
-                             (xml/event-seq rdr {:include-node? #{:element :characters :comment}}))]
-    (first (filter #(instance? Element %) (first roots)))))
+  (println "DEBUG parse-xml")
+  (let [events (xml/event-seq rdr {:include-node? #{:element :characters :comment}})
+        roots (tree/seq-tree event/event-element event/event-exit? event/event-node events)]
+    ;(xml/event-seq rdr {:include-node? #{:element :characters :comment}}))
+    ;(first (filter #(instance? Element %) (first roots)))
+    (first  (first roots))))
+;(first (first roots))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -221,14 +230,14 @@
 
 (defn ^:private sync-pom
   [{:keys [deps-map] :as task}]
-  (cli/info "Updating pom.xml") 
-  (gen.pom/sync-pom deps-map (io/file ".")) 
+  (cli/info "Updating pom.xml")
+  (gen.pom/sync-pom deps-map (io/file "."))
   (let [pom-file (io/file "." "pom.xml")
         pom (with-open [rdr (io/reader pom-file)]
               (-> rdr
                   parse-xml
                   (replace-header task)))]
-    (spit pom-file (xml/indent-str pom))))
+    (spit pom-file (xml/emit-str pom))))
 
 (defn apply! [{:keys [deps-map] :as task}]
   (compile/apply! task)
@@ -240,10 +249,10 @@
 (defn -main [& args]
   (let [{:keys [help] :as task} (cli/args->task args cli-options)]
     (cli/runner
-     {:help? help
-      :task task
-      :entrypoint-main
-      "cambada.jar"
-      :entrypoint-description
-      "Package up all the project's files into a jar file."
-      :apply-fn apply!})))
+      {:help?    help
+       :task     task
+       :entrypoint-main
+                 "cambada.jar"
+       :entrypoint-description
+                 "Package up all the project's files into a jar file."
+       :apply-fn apply!})))

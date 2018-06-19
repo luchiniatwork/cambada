@@ -1,3 +1,5 @@
+target/*
+.idea/
 .cpcache/
-.nrepl-port
-target/
+*.iml
+.iml
