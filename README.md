@@ -414,6 +414,6 @@ If you are interested in becoming a team member please open an issue.
 
 ## License
 
-Copyright © 2017 Tiago Luchini
+Copyright © 2018 Tiago Luchini
 
 Distributed under the MIT License. See LICENSE
