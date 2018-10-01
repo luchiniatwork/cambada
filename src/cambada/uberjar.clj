@@ -107,6 +107,8 @@
 (defn ^:private get-dep-jars
   [{:keys [deps-map]}]
   (->> (tools.deps/resolve-deps deps-map nil)
+       (filter (fn [[_ {:keys [deps/manifest]}]]
+                 (= :mvn manifest)))
        (map (fn [[_ {:keys [paths]}]] paths))
        (mapcat identity)))
 
