@@ -68,7 +68,7 @@
   (into (map-vals {}
                   (comp make-merger eval))
         (map #(vector % skip-merger)
-             [])))
+             (:uberjar-exclusions project))))
 
 (defn ^:private select-merger [mergers filename]
   (or (->> mergers (filter #(merger-match? % filename)) first second)
@@ -138,7 +138,8 @@
       (write-components task jars out))))
 
 (defn -main [& args]
-  (let [{:keys [help] :as task} (cli/args->task args cli-options)]
+  (let [{:keys [help] :as task} (-> (cli/args->task args cli-options)
+                                    (assoc :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]))]
     (cli/runner
      {:help? help
       :task task
