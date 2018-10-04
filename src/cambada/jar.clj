@@ -221,8 +221,8 @@
 
 (defn ^:private sync-pom
   [{:keys [deps-map] :as task}]
-  (cli/info "Updating pom.xml") 
-  (gen.pom/sync-pom deps-map (io/file ".")) 
+  (cli/info "Updating pom.xml")
+  (gen.pom/sync-pom deps-map (io/file "."))
   (let [pom-file (io/file "." "pom.xml")
         pom (with-open [rdr (io/reader pom-file)]
               (-> rdr

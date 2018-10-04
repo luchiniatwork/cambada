@@ -67,10 +67,11 @@
       (not= deps (last config-files)) (conj deps))))
 
 (defn ^:private cli-options->deps-map
-  [{:keys [deps merge-config]}]
-  (if merge-config
-    (deps.reader/read-deps (config-files deps))
-    (-> deps io/file deps.reader/slurp-deps)))
+  [{:keys [deps merge-config] :as opts}]
+  (let [all-files (config-files deps)]
+    (if merge-config
+      (deps.reader/read-deps all-files)
+      (-> deps io/file deps.reader/slurp-deps))))
 
 (defn ^:private parsed-opts->task
   [{{:keys [deps main aot] :as options} :options
