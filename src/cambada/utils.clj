@@ -1,5 +1,6 @@
 (ns cambada.utils
-  (:require [clojure.java.io :as io])
+  (:require [clojure.java.io :as io]
+            [clojure.java.shell :as sh])
   (:import (java.io File)))
 
 ;; # OS detection
@@ -121,3 +122,14 @@
              (assoc m k (val-agg-fn (map val-fn v))))
            {}
            (group-by key-fn xs))))
+
+
+(defn read-git-head
+  "Reads the value of HEAD and returns a commit SHA1, or nil if no commit
+  exist."
+  []
+  (try
+    (let [git-ref (sh/sh "git" "rev-parse" "HEAD")]
+      (when (= (:exit git-ref) 0)
+        (.trim (:out git-ref))))
+    (catch java.io.IOException e)))
