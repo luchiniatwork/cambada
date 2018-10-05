@@ -107,14 +107,6 @@
   (with-open [zipfile (ZipFile. dep)]
     (copy-entries zipfile out mergers merged-map)))
 
-(defn ^:private get-dep-jars
-  [{:keys [deps-map]}]
-  (->> (tools.deps/resolve-deps deps-map nil)
-       (filter (fn [[_ {:keys [deps/manifest]}]]
-                 (= :mvn manifest)))
-       (map (fn [[_ {:keys [paths]}]] paths))
-       (mapcat identity)))
-
 (defn ^:private write-components
   "Given a list of jarfiles, writes contents to a stream"
   [task jars out]
@@ -126,16 +118,14 @@
             :let [[_ write] (select-merger mergers filename)]]
       (write out filename result))))
 
-
-(defn ^:private get-deps-paths
-  "Returns a seq of strings representing paths"
+(defn ^:private get-deps-by-manifest
+  "Returns a map of manifest values ie `:mvn` and `:deps` as keys
+   and a seq of path strings. For `:mvn` the values represent jar files.
+   For `:deps` the values represent directory locations on the file system."
   [{:keys [deps-map]}]
   (->> (tools.deps/resolve-deps deps-map nil)
-       (filter (fn [[_ {:keys [deps/manifest]}]]
-                 (= :deps manifest)))
        vals
-       (mapcat :paths)))
-
+       (utils/group-by+ :deps/manifest :paths (partial reduce into []))))
 
 (defn ^:private non-source-paths
   "Returns a seq of maps with `:fs-path` and `:jar-path` keys."
@@ -156,16 +146,16 @@
     (.closeEntry out)))
 
 (defn ^:private copy-non-source-files
-  [seen root out]
-  (reduce (fn [seen {:keys [fs-path jar-path]}]
-            (if (seen jar-path)
+  [copied root out]
+  (reduce (fn [copied {:keys [fs-path jar-path]}]
+            (if (copied jar-path)
               (do
                 (cli/warn "Skipping " fs-path " which would yield duplicate " jar-path)
-                seen)
+                copied)
               (do
                 (write-fs-file-to-zip out fs-path jar-path)
-                (conj seen jar-path))))
-          seen
+                (conj copied jar-path))))
+          copied
           (non-source-paths root)))
 
 (defn ^:private write-deps-resources
@@ -173,12 +163,12 @@
    are copied to the output jar. Normally, lein would have copied things from resource-paths
    to the jar and write-components would take care of it. However, here we don't have a jar
    so have to use the deps :paths key and filter on non source code to include in out."
-  [{:keys [deps-map] :as task} out]
-  (reduce (fn [seen path]
+  [{:keys [deps-map] :as task} deps-paths out]
+  (reduce (fn [copied path]
             (cli/info "Including non-source files from deps root " path)
-            (copy-non-source-files seen path out))
+            (copy-non-source-files copied path out))
           #{}
-          (get-deps-paths task)))
+          deps-paths))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -188,18 +178,19 @@
 (defn apply! [{:keys [deps deps-map out] :as task}]
   (jar/apply! task)
   (let [filename (jar-utils/get-jar-filename task {:kind :uberjar})
-        jars (conj (get-dep-jars task)
-                   (jar-utils/get-jar-filename task {:kind :jar}))]
+        {mvn-paths :mvn deps-paths :deps} (get-deps-by-manifest task)
+        jars (cons (jar-utils/get-jar-filename task {:kind :jar}) mvn-paths)]
     (cli/info "Creating" filename)
     (with-open [out (-> filename
                         (FileOutputStream.)
                         (ZipOutputStream.))]
       (write-components task jars out)
-      (write-deps-resources task out))))
+      (write-deps-resources task deps-paths out))))
 
 (defn -main [& args]
   (let [{:keys [help] :as task} (-> (cli/args->task args cli-options)
                                     (assoc :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]))]
+
     (cli/runner
      {:help? help
       :task task
