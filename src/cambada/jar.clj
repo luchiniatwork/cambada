@@ -221,14 +221,17 @@
 
 (defn ^:private sync-pom
   [{:keys [deps-map] :as task}]
-  (cli/info "Updating pom.xml") 
-  (gen.pom/sync-pom deps-map (io/file ".")) 
-  (let [pom-file (io/file "." "pom.xml")
-        pom (with-open [rdr (io/reader pom-file)]
-              (-> rdr
-                  parse-xml
-                  (replace-header task)))]
-    (spit pom-file (xml/indent-str pom))))
+  (cli/info "Updating pom.xml")
+  (gen.pom/sync-pom deps-map (io/file "."))
+  (try
+    (let [pom-file (io/file "." "pom.xml")
+          pom (with-open [rdr (io/reader pom-file)]
+                (-> rdr
+                    parse-xml
+                    (replace-header task)))]
+      (spit pom-file (xml/indent-str pom)))
+    (catch Throwable e
+      (clojure.pprint/pprint e))))
 
 (defn apply! [{:keys [deps-map] :as task}]
   (compile/apply! task)
