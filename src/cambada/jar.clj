@@ -228,8 +228,9 @@
           pom (with-open [rdr (io/reader pom-file)]
                 (-> rdr
                     parse-xml
-                    (replace-header task)))]
-      (spit pom-file (xml/indent-str pom)))
+                    (replace-header task)
+                    xml/indent-str))]
+      (spit pom-file pom))
     (catch Throwable e
       (clojure.pprint/pprint e))))
 
