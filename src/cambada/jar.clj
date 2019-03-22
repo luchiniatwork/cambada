@@ -189,9 +189,12 @@
 
 (defn- parse-xml
   [^Reader rdr]
-  (let [roots (tree/seq-tree event/event-element event/event-exit? event/event-node
-                             (xml/event-seq rdr {:include-node? #{:element :characters :comment}}))]
-    (first (filter #(instance? Element %) (first roots)))))
+  (let [events (xml/event-seq rdr {:include-node? #{:element :characters :comment}})
+        roots  (tree/seq-tree event/event-element event/event-exit? event/event-node events)]
+    (->> roots
+         first
+         (filter #(instance? Element %))
+         first)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
