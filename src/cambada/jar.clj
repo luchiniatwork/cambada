@@ -193,7 +193,7 @@
         roots  (tree/seq-tree event/event-element event/event-exit? event/event-node events)]
     (->> roots
          first
-         (filter #(instance? Element %))
+         (filterv #(instance? Element %))
          first)))
 
 
