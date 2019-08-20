@@ -30,7 +30,9 @@
             :default "1.0.0-SNAPSHOT"]
 
            [nil "--[no-]copy-source" "Copy source files by default"
-            :default true]]
+            :default true]
+
+           ["-R" "--resolve-deps STRING" "Include dep modifications from aliases"]]
 
           compile/cli-options))
 

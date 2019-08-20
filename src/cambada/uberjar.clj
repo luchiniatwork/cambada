@@ -105,10 +105,12 @@
     (copy-entries zipfile out mergers merged-map)))
 
 (defn ^:private get-dep-jars
-  [{:keys [deps-map]}]
-  (->> (tools.deps/resolve-deps deps-map nil)
-       (map (fn [[_ {:keys [paths]}]] paths))
-       (mapcat identity)))
+  [{:keys [deps-map] :as task}]
+  (let [deps-aliases (map keyword (some-> task :resolve-deps (string/split #":")))
+        extra-deps (when (not-empty deps-aliases) (tools.deps/combine-aliases deps-map deps-aliases))]
+    (->> (tools.deps/resolve-deps deps-map extra-deps)
+         (map (fn [[_ {:keys [paths]}]] paths))
+         (mapcat identity))))
 
 (defn ^:private write-components
   "Given a list of jarfiles, writes contents to a stream"
