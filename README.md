@@ -384,13 +384,6 @@ $ ./target/myproj
 Hello World!
 ```
 
-Internally Cambada prefers not to spawn native-image servers
-(`--no-server` option) and also pushes unsupported elements exceptions
-to the runtime (`-H:+ReportUnsupportedElementsAtRuntime`
-option). These have been decisions at the time of this writing in
-order to compile the most amount of Clojure code possible considering
-the current status of GraalVM.
-
 Extra options can be sent to GraalVM's packager by using Cambada's
 `--graalvm-opt` option.
 
