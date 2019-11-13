@@ -48,7 +48,7 @@ with `extra-deps` to your `deps.edn` file:
 {:aliases {:cambada
            {:extra-deps
             {luchiniatwork/cambada
-             {:mvn/version "1.0.0"}}}}}
+             {:mvn/version "1.0.1"}}}}}
 ```
 
 Cambada has three main entry points, `cambada.jar`, `cambada.uberjar` and
@@ -140,7 +140,7 @@ Create a `deps.edn` at the root of your project with `cambada.jar` as an alias:
 ``` clojure
 {:aliases {:jar
            {:extra-deps
-            {luchiniatwork/cambada {:mvn/version "1.0.0"}}
+            {luchiniatwork/cambada {:mvn/version "1.0.1"}}
             :main-opts ["-m" "cambada.jar"
                         "-m" "myproj.core"]}}}
 ```

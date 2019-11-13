@@ -3,34 +3,34 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>luchiniatwork</groupId>
   <artifactId>cambada</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <name>cambada</name>
 
   <dependencies>
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.9.0</version>
+      <version>1.10.1</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>data.xml</artifactId>
-      <version>0.2.0-alpha5</version>
+      <version>0.2.0-alpha6</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>tools.cli</artifactId>
-      <version>0.3.7</version>
+      <version>0.4.2</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>tools.deps.alpha</artifactId>
-      <version>0.5.435</version>
+      <version>0.8.584</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>tools.namespace</artifactId>
-      <version>0.2.11</version>
+      <version>0.3.1</version>
     </dependency>
   </dependencies>
 
@@ -63,37 +63,39 @@
         <directory>resources</directory>
       </resource>
     </resources>
+
     <plugins>
       <plugin>
-      <!-- By default, compile everything as a sanity check, but do
+        <!-- By default, compile everything as a sanity check, but do
            not include any AOT-compiled .class files in the
            JAR. Projects may override as needed. -->
-      <groupId>com.theoryinpractise</groupId>
-      <artifactId>clojure-maven-plugin</artifactId>
-      <version>1.8.1</version>
-      <extensions>true</extensions>
-      <configuration>
-        <warnOnReflection>true</warnOnReflection>
-        <temporaryOutputDirectory>true</temporaryOutputDirectory>
-        <sourceDirectories>
-          <sourceDirectory>src</sourceDirectory>
-        </sourceDirectories>
-      </configuration>
-      <executions>
-        <execution>
-          <id>clojure-compile</id>
-          <phase>none</phase>
-        </execution>
-        <execution>
-          <id>clojure-test</id>
-          <phase>test</phase>
-          <goals>
-            <goal>test</goal>
-          </goals>
-        </execution>
-      </executions>
+        <groupId>com.theoryinpractise</groupId>
+        <artifactId>clojure-maven-plugin</artifactId>
+        <version>1.8.1</version>
+        <extensions>true</extensions>
+        <configuration>
+          <warnOnReflection>true</warnOnReflection>
+          <temporaryOutputDirectory>true</temporaryOutputDirectory>
+          <sourceDirectories>
+            <sourceDirectory>src</sourceDirectory>
+          </sourceDirectories>
+        </configuration>
+        <executions>
+          <execution>
+            <id>clojure-compile</id>
+            <phase>none</phase>
+          </execution>
+          <execution>
+            <id>clojure-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
+    <sourceDirectory>src</sourceDirectory>
   </build>
 
 </project>
