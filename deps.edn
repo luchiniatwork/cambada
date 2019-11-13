@@ -1,10 +1,10 @@
 {:paths ["src"]
  :deps
- {org.clojure/clojure          {:mvn/version "1.9.0"}
-  org.clojure/data.xml         {:mvn/version "0.2.0-alpha5"}
-  org.clojure/tools.cli        {:mvn/version "0.3.7"}
-  org.clojure/tools.deps.alpha {:mvn/version "0.5.435"}
-  org.clojure/tools.namespace  {:mvn/version "0.2.11"}}
+ {org.clojure/clojure          {:mvn/version "1.10.1"}
+  org.clojure/data.xml         {:mvn/version "0.2.0-alpha6"}
+  org.clojure/tools.cli        {:mvn/version "0.4.2"}
+  org.clojure/tools.deps.alpha {:mvn/version "0.8.584"}
+  org.clojure/tools.namespace  {:mvn/version "0.3.1"}}
 
  :aliases
  {:jar
