@@ -33,6 +33,7 @@ cases, donor code too).
 * [Packaging as a Jar](#packaging-as-a-jar)
 * [Packaging as an Uberjar](#packaging-as-an-uberjar)
 * [Packaging as a Native Image](#packaging-as-a-native-image)
+* [Caveats](#caveats)
 * [Performance Comparison](#performance-comparison)
 * [Bugs](#bugs)
 * [Help!](#help)
@@ -271,6 +272,20 @@ Hello World!
 `cambada.uberjar` has exactly the same options and defaults as
 `cambada.jar` (see above for more details).
 
+## Caveats
+
+If any of your transitive dependencies has a Maven Central dependency,
+`cambada` may fail on you (investigations under way). Therefore, it is
+recommended that you explicitly add your repos (Central included) to
+your `deps.edn` file i.e.:
+
+``` clojure
+{:deps {...}
+
+ :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
+             "clojars" {:url "https://repo.clojars.org/"}}}
+```
+
 ## Packaging as a Native Image
 
 By using GraalVM we now have the option of packaging everything AOT
@@ -278,6 +293,20 @@ compiled as a native image.
 
 If you want to use this feature, make sure to [download and install
 GraalVM](https://www.graalvm.org/).
+
+If you are a MacOS user, GraalVM CE is available as a brew cask:
+
+``` shell
+$ brew cask install graalvm/tap/graalvm-ce
+```
+
+GraalVM's `native-image` is a package that needs to be installed
+manually with the following command (attention that `gu` is at
+`$GRAALVM_HOME/bin/` if it is not on your `PATH`):
+
+``` shell
+$ gu install native-image
+```
 
 You will need to set your `GRAALVM_HOME` environment variable to point
 to where GraalVM is installed. Alternatevely you can call
