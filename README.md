@@ -385,7 +385,8 @@ Hello World!
 ```
 
 Extra options can be sent to GraalVM's packager by using Cambada's
-`--graalvm-opt` option.
+`--graalvm-opt` option i.e., to include `FILE` as a resource, simply
+use `--graalvm-opt H:IncludeResources=FILE`.
 
 ## Performance Comparison
 
