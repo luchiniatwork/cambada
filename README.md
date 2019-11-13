@@ -179,7 +179,7 @@ it, you'll need to add Clojure and spec to your class path. The paths will vary
 on your system:
 
 ``` shell
-$ java -cp target/myproj-1.0.0-SNAPSHOT.jar:/Users/<your_user>/.m2/repository/org/clojure/clojure/1.9.0/clojure-1.9.0.jar:/Users/<your_user>/.m2/repository/org/clojure/spec.alpha/0.1.143/spec.alpha-0.1.143.jar myproj.core
+$ java -cp target/myproj-1.0.0-SNAPSHOT.jar myproj.core
 Hello World!
 ```
 For a standalone jar file see the uberjar option on the next section.
