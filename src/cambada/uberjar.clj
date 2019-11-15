@@ -60,11 +60,6 @@
    (constantly nil)])
 
 (defn ^:private make-mergers [project]
-  ;; TODO: this is too lein-specific and I've simply defaulted to a basic merger
-  #_(into (map-vals (:uberjar-merge-with project)
-                    (comp make-merger eval))
-          (map #(vector % skip-merger)
-               (:uberjar-exclusions project)))
   (into (map-vals {}
                   (comp make-merger eval))
         (map #(vector % skip-merger)
@@ -140,8 +135,9 @@
       (write-components task jars out))))
 
 (defn -main [& args]
-  (let [{:keys [help] :as task} (-> (cli/args->task args cli-options)
-                                    (assoc :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]))]
+  (let [{:keys [help] :as task}
+        (-> (cli/args->task args cli-options)
+            (assoc :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]))]
     (cli/runner
      {:help? help
       :task task
