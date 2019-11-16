@@ -46,6 +46,9 @@
   [["-d" "--deps FILE_PATH" "Location of deps.edn file"
     :default "deps.edn"]
 
+   [nil "--[no-]merge-config" "Merges various deps.edn files according to tools.deps by default"
+    :default true]
+
    ["-o" "--out PATH" "Output directory"
     :default "target"]
 
@@ -55,27 +58,25 @@
   [args cli-options]
   (cli/parse-opts args cli-options))
 
-(defn ^:private conj-default-paths [{:keys [paths] :as m}]
-  (assoc m :paths
-         (-> paths
-             set
-             (conj "src")
-             vec)))
+(defn ^:private config-files
+  "Read clojure env to get config files and append deps if not already present.
+   Returns a vector of strings which represent the config files"
+  [deps]
+  (let [{:keys [config-files]} (deps.reader/clojure-env)]
+    (cond-> config-files
+      (not= deps (last config-files)) (conj deps))))
 
-(defn ^:private assoc-default-deps [{:keys [deps] :or {deps {}} :as m}]
-  (cond-> m
-    (nil? (get deps 'org.clojure/clojure))
-    (assoc :deps (assoc deps 'org.clojure/clojure {:mvn/version "1.9.0"}))))
+(defn ^:private cli-options->deps-map
+  [{:keys [deps merge-config]}]
+  (if merge-config
+    (deps.reader/read-deps (config-files deps))
+    (-> deps io/file deps.reader/slurp-deps)))
 
 (defn ^:private parsed-opts->task
   [{{:keys [deps main aot] :as options} :options
     :keys [summary errors]}]
   (try
-    (let [deps-map (-> deps
-                       io/file
-                       deps.reader/slurp-deps
-                       conj-default-paths
-                       assoc-default-deps)
+    (let [deps-map (cli-options->deps-map options)
           opts (cond-> options
                  ;; if main is not nil, it needs to be added to aot
                  ;; unless user chose all or main has been added
