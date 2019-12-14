@@ -4,11 +4,12 @@
             [cambada.jar :as jar]
             [cambada.jar-utils :as jar-utils]
             [cambada.utils :as utils]
+            [cambada.fs :as fs]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.tools.deps.alpha :as tools.deps])
   (:import [java.io BufferedOutputStream FileOutputStream ByteArrayInputStream]
-           [java.nio.file Files Paths]
+           [java.nio.file Files Paths Path]
            [java.util.jar Manifest JarEntry JarOutputStream]
            [java.util.regex Pattern]
            [java.util.zip ZipFile ZipOutputStream ZipEntry]
@@ -99,14 +100,6 @@
   (with-open [zipfile (ZipFile. dep)]
     (copy-entries zipfile out mergers merged-map)))
 
-(defn ^:private get-dep-jars
-  [{:keys [deps-map] :as task}]
-  (let [deps-aliases (map keyword (some-> task :resolve-deps (string/split #":")))
-        extra-deps (when (not-empty deps-aliases) (tools.deps/combine-aliases deps-map deps-aliases))]
-    (->> (tools.deps/resolve-deps deps-map extra-deps)
-         (map (fn [[_ {:keys [paths]}]] paths))
-         (mapcat identity))))
-
 (defn ^:private write-components
   "Given a list of jarfiles, writes contents to a stream"
   [task jars out]
@@ -119,6 +112,66 @@
       (write out filename result))))
 
 
+(defn ^:private get-deps-by-manifest
+  "Returns a map of manifest values ie `:mvn` and `:deps` as keys
+   and a seq of path strings. For `:mvn` the values represent jar files.
+   For `:deps` the values represent directory locations on the file system."
+  [{:keys [deps-map combine-aliases] :as task}]
+  (let [combined-aliases (tools.deps/combine-aliases deps-map combine-aliases)]
+    (->> (tools.deps/resolve-deps deps-map combined-aliases)
+         vals
+         (utils/group-by+ :deps/manifest :paths (partial reduce into [])))))
+
+
+(defn ^:private non-source-paths
+  "Returns a seq of maps with `:fs-path` and `:jar-path` keys."
+  [root]
+  (let [root (fs/path root)]
+    (map (fn [path]
+           {:fs-path path
+            :jar-path (fs/relative-path root path)})
+         (fs/find-non-source-files root))))
+
+
+(defn ^:private write-fs-file-to-zip
+  "Adds a file system file as an entry to the zip file."
+  [^ZipOutputStream out ^Path fs-path ^Path jar-path]
+  (let [entry (ZipEntry. (str jar-path))]
+    (.setCompressedSize entry -1)
+    (.putNextEntry out entry)
+    (io/copy (fs/input-stream fs-path :read) out)
+    (.closeEntry out)))
+
+
+(defn ^:private copy-non-source-files
+  [copied root out]
+  (reduce (fn [copied {:keys [fs-path jar-path]}]
+            (if (copied jar-path)
+              (do
+                (cli/warn "Skipping " fs-path " which would yield duplicate " jar-path)
+                copied)
+              (do
+                (write-fs-file-to-zip out fs-path jar-path)
+                (cli/info "Including resource file" (str fs-path))
+                (conj copied jar-path))))
+          copied
+          (non-source-paths root)))
+
+
+(defn ^:private write-deps-resources
+  "Local and git deps may contain non clojure files which need to be present in the uberjar,
+  ie .sql, .edn, .xml etc. These files aren't included when the jar task runs.
+  Lein for example copies files from `resource-paths` to the jar and `write-components` would
+  have handled these resource files. However, with local and git deps there isn't a jar
+  so we are using deps' `:paths` key and filtering on non clojure source code to include in out."
+  ;; TODO: Filter out files as jar/skip-file? does
+  [{:keys [deps-map] :as task} deps-paths out]
+  (reduce (fn [copied path]
+            (copy-non-source-files copied path out))
+          #{}
+          deps-paths))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Main functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -126,13 +179,14 @@
 (defn apply! [{:keys [deps deps-map out] :as task}]
   (jar/apply! task)
   (let [filename (jar-utils/get-jar-filename task {:kind :uberjar})
-        jars (conj (get-dep-jars task)
-                   (jar-utils/get-jar-filename task {:kind :jar}))]
+        {mvn-paths :mvn deps-paths :deps} (get-deps-by-manifest task)
+        jars (cons (jar-utils/get-jar-filename task {:kind :jar}) mvn-paths)]
     (cli/info "Creating" filename)
     (with-open [out (-> filename
                         (FileOutputStream.)
                         (ZipOutputStream.))]
-      (write-components task jars out))))
+      (write-components task jars out)
+      (write-deps-resources task deps-paths out))))
 
 (defn -main [& args]
   (let [{:keys [help] :as task}
