@@ -142,7 +142,9 @@ Create a `deps.edn` at the root of your project with `cambada.jar` as an alias:
            {:extra-deps
             {luchiniatwork/cambada {:mvn/version "1.0.2"}}
             :main-opts ["-m" "cambada.jar"
-                        "-m" "myproj.core"]}}}
+                        "-m" "myproj.core"
+                        "--app-group-id" "mygroupid"
+                        "--app-artifact-id" "myproj"]}}}
 ```
 
 Create a simple hello world on a `-main` function at `src/myproj/core.clj`:
@@ -172,6 +174,12 @@ Creating target/classes
 Creating target/myproj-1.0.0-SNAPSHOT.jar
 Updating pom.xml
 Done!
+```      
+
+or if you want to set version to something specific:
+
+``` shell
+$ clj -A:jar --app-version 0.0.1
 ```
 
 Once Cambada is done, you'll have a jar package at `target/`. In order to run
