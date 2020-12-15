@@ -150,12 +150,3 @@
       :entrypoint-description
       "Package up the project files and all dependencies into a jar file."
       :apply-fn apply!})))
-
-
-(comment
-  (tools.deps/resolve-deps '{:deps {org.clojure/clojure {:mvn/version "1.9.0"}
-                                    org.clojure/core.async {:mvn/version "0.4.474"}}
-                             :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
-                                         "clojars" {:url "https://repo.clojars.org/"}}}
-                           
-                           nil))
