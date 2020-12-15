@@ -102,8 +102,12 @@
 (defn ^:private get-dep-jars
   [{:keys [deps-map] :as task}]
   (let [deps-aliases (map keyword (some-> task :resolve-deps (string/split #":")))
-        extra-deps (when (not-empty deps-aliases) (tools.deps/combine-aliases deps-map deps-aliases))]
-    (->> (tools.deps/resolve-deps deps-map extra-deps)
+        extra-deps (when (not-empty deps-aliases)
+                     (tools.deps/combine-aliases deps-map deps-aliases))
+        deps-map' (assoc deps-map
+                         :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
+                                     "clojars" {:url "https://repo.clojars.org/"}})]
+    (->> (tools.deps/resolve-deps deps-map' extra-deps)
          (map (fn [[_ {:keys [paths]}]] paths))
          (mapcat identity))))
 
@@ -146,3 +150,12 @@
       :entrypoint-description
       "Package up the project files and all dependencies into a jar file."
       :apply-fn apply!})))
+
+
+(comment
+  (tools.deps/resolve-deps '{:deps {org.clojure/clojure {:mvn/version "1.9.0"}
+                                    org.clojure/core.async {:mvn/version "0.4.474"}}
+                             :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
+                                         "clojars" {:url "https://repo.clojars.org/"}}}
+                           
+                           nil))
