@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
   <modelVersion>4.0.0</modelVersion>
+    
   <groupId>luchiniatwork</groupId>
+    
   <artifactId>cambada</artifactId>
-  <version>1.0.2</version>
-  <name>cambada</name>
 
+  <version>1.0.3</version>
+    
+  <name>cambada</name>
+    
   <dependencies>
     <dependency>
       <groupId>org.clojure</groupId>
@@ -33,35 +38,50 @@
       <version>0.3.1</version>
     </dependency>
   </dependencies>
-
+    
   <packaging>clojure</packaging>
-
+    
   <scm>
+        
     <connection>scm:git:git@github.com:luchiniatwork/cambada.git</connection>
+        
     <developerConnection>scm:git:git@github.com:luchiniatwork/cambada.git</developerConnection>
+        
     <url>https://github.com/luchiniatwork/cambada</url>
+      
   </scm>
-
+    
   <distributionManagement>
+        
     <repository>
+            
       <id>clojars</id>
+            
       <name>Clojars repository</name>
+            
       <url>https://clojars.org/repo</url>
+          
     </repository>
+      
   </distributionManagement>
-
+    
   <repositories>
     <repository>
       <id>clojars</id>
       <url>https://repo.clojars.org/</url>
     </repository>
   </repositories>
-
+    
   <build>
+        
     <resources>
+            
       <resource>
+                
         <directory>resources</directory>
+              
       </resource>
+          
     </resources>
 
     <plugins>
@@ -94,6 +114,7 @@
           </execution>
         </executions>
       </plugin>
+
     </plugins>
     <sourceDirectory>src</sourceDirectory>
   </build>
