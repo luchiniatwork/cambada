@@ -6,7 +6,8 @@
             [cambada.utils :as utils]
             [clojure.java.io :as io]
             [clojure.string :as string]
-            [clojure.tools.deps.alpha :as tools.deps])
+            [clojure.tools.deps.alpha :as tools-deps]
+            [clojure.tools.deps.alpha.script.make-classpath2 :as make-classpath])
   (:import [java.io BufferedOutputStream FileOutputStream ByteArrayInputStream]
            [java.nio.file Files Paths]
            [java.util.jar Manifest JarEntry JarOutputStream]
@@ -100,16 +101,13 @@
     (copy-entries zipfile out mergers merged-map)))
 
 (defn ^:private get-dep-jars
-  [{:keys [deps-map] :as task}]
-  (let [deps-aliases (map keyword (some-> task :resolve-deps (string/split #":")))
-        extra-deps (when (not-empty deps-aliases)
-                     (tools.deps/combine-aliases deps-map deps-aliases))
-        deps-map' (assoc deps-map
-                         :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
-                                     "clojars" {:url "https://repo.clojars.org/"}})]
-    (->> (tools.deps/resolve-deps deps-map' extra-deps)
-         (map (fn [[_ {:keys [paths]}]] paths))
-         (mapcat identity))))
+  [{:keys [deps-map deps] :as task}]
+  (let [cp (:classpath (make-classpath/run-core
+                        {:install-deps (tools-deps/root-deps)
+                         :project-deps (make-classpath/read-deps deps)}))]
+    (->> cp
+         keys
+         (filter #(let [f (io/file %)] (and (.exists f) (.isFile f)))))))
 
 (defn ^:private write-components
   "Given a list of jarfiles, writes contents to a stream"

@@ -2,7 +2,8 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.tools.cli :as cli]
-            [clojure.tools.deps.alpha.reader :as deps.reader]))
+            [clojure.tools.deps.alpha :as tool-deps]
+            [clojure.tools.deps.alpha.script.make-classpath2 :as make-classpath]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Console out and operating functions
@@ -55,27 +56,14 @@
   [args cli-options]
   (cli/parse-opts args cli-options))
 
-(defn ^:private conj-default-paths [{:keys [paths] :as m}]
-  (assoc m :paths
-         (-> paths
-             set
-             (conj "src")
-             vec)))
-
-(defn ^:private assoc-default-deps [{:keys [deps] :or {deps {}} :as m}]
-  (cond-> m
-    (nil? (get deps 'org.clojure/clojure))
-    (assoc :deps (assoc deps 'org.clojure/clojure {:mvn/version "1.9.0"}))))
 
 (defn ^:private parsed-opts->task
   [{{:keys [deps main aot] :as options} :options
     :keys [summary errors]}]
   (try
-    (let [deps-map (-> deps
-                       io/file
-                       deps.reader/slurp-deps
-                       conj-default-paths
-                       assoc-default-deps)
+    (let [install-deps (tool-deps/root-deps)
+          project-deps (make-classpath/read-deps deps)
+          deps-map (merge install-deps project-deps)
           opts (cond-> options
                  ;; if main is not nil, it needs to be added to aot
                  ;; unless user chose all or main has been added
