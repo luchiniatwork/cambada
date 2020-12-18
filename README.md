@@ -48,7 +48,7 @@ with `extra-deps` to your `deps.edn` file:
 {:aliases {:cambada
            {:extra-deps
             {luchiniatwork/cambada
-             {:mvn/version "1.0.3"}}}}}
+             {:mvn/version "1.0.4"}}}}}
 ```
 
 Cambada has three main entry points, `cambada.jar`, `cambada.uberjar` and

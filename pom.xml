@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    
   <modelVersion>4.0.0</modelVersion>
-    
   <groupId>luchiniatwork</groupId>
-    
   <artifactId>cambada</artifactId>
-
-  <version>1.0.3</version>
-    
+  <version>1.0.4</version>
   <name>cambada</name>
-    
   <dependencies>
     <dependency>
       <groupId>org.clojure</groupId>
@@ -19,71 +13,50 @@
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
-      <artifactId>data.xml</artifactId>
-      <version>0.2.0-alpha6</version>
-    </dependency>
-    <dependency>
-      <groupId>org.clojure</groupId>
       <artifactId>tools.cli</artifactId>
       <version>0.4.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.clojure</groupId>
-      <artifactId>tools.deps.alpha</artifactId>
-      <version>0.8.584</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>tools.namespace</artifactId>
       <version>0.3.1</version>
     </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>tools.deps.alpha</artifactId>
+      <version>0.9.857</version>
+    </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>data.xml</artifactId>
+      <version>0.2.0-alpha6</version>
+    </dependency>
   </dependencies>
-    
   <packaging>clojure</packaging>
-    
   <scm>
-        
     <connection>scm:git:git@github.com:luchiniatwork/cambada.git</connection>
-        
     <developerConnection>scm:git:git@github.com:luchiniatwork/cambada.git</developerConnection>
-        
     <url>https://github.com/luchiniatwork/cambada</url>
-      
   </scm>
-    
   <distributionManagement>
-        
     <repository>
-            
       <id>clojars</id>
-            
       <name>Clojars repository</name>
-            
       <url>https://clojars.org/repo</url>
-          
     </repository>
-      
   </distributionManagement>
-    
   <repositories>
     <repository>
       <id>clojars</id>
       <url>https://repo.clojars.org/</url>
     </repository>
   </repositories>
-    
   <build>
-        
     <resources>
-            
       <resource>
-                
         <directory>resources</directory>
-              
       </resource>
-          
     </resources>
-
     <plugins>
       <plugin>
         <!-- By default, compile everything as a sanity check, but do
@@ -114,9 +87,7 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
     <sourceDirectory>src</sourceDirectory>
   </build>
-
 </project>
