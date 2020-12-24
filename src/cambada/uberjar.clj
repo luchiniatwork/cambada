@@ -5,9 +5,8 @@
             [cambada.jar-utils :as jar-utils]
             [cambada.utils :as utils]
             [clojure.java.io :as io]
-            [clojure.string :as string]
-            [clojure.tools.deps.alpha :as tools-deps]
-            [clojure.tools.deps.alpha.script.make-classpath2 :as make-classpath])
+            [clojure.java.shell :as shell]
+            [clojure.string :as string])
   (:import [java.io BufferedOutputStream FileOutputStream ByteArrayInputStream]
            [java.nio.file Files Paths]
            [java.util.jar Manifest JarEntry JarOutputStream]
@@ -102,11 +101,9 @@
 
 (defn ^:private get-dep-jars
   [{:keys [deps-map deps] :as task}]
-  (let [cp (:classpath (make-classpath/run-core
-                        {:install-deps (tools-deps/root-deps)
-                         :project-deps (make-classpath/read-deps deps)}))]
+  (let [resp (shell/sh "clojure" "-Srepro" "-Spath")
+        cp (-> resp :out (string/split #":"))]
     (->> cp
-         keys
          (filter #(let [f (io/file %)] (and (.exists f) (.isFile f)))))))
 
 (defn ^:private write-components
