@@ -294,10 +294,12 @@ compiled as a native image.
 If you want to use this feature, make sure to [download and install
 GraalVM](https://www.graalvm.org/).
 
-If you are a MacOS user, GraalVM CE is available as a brew cask:
+If you are a MacOS user, GraalVM CE is available as a brew cask for Java 8 and 11:
 
 ``` shell
-$ brew cask install graalvm/tap/graalvm-ce
+$ brew cask install graalvm/tap/graalvm-ce-java8
+# or
+$ brew cask install graalvm/tap/graalvm-ce-java11
 ```
 
 GraalVM's `native-image` is a package that needs to be installed
